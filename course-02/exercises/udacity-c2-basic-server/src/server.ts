@@ -72,10 +72,35 @@ import { Car, cars as cars_list } from './cars';
 
   // @TODO Add an endpoint to GET a list of cars
   // it should be filterable by make with a query paramater
+  app.get("/cars/:make", 
+    ( req: Request,  res:Response) => {
+      const { make } = req.params;
+
+      if ( !make ){
+        res.status(400).send("car name is required")
+      }
+
+      cars = cars.filter(car => car.make === make)
+
+      res.status(200).send(cars)
+  })
 
   // @TODO Add an endpoint to get a specific car
   // it should require id
   // it should fail gracefully if no matching car is found
+
+  app.get("/cars/:id", 
+    ( req: Request,  res:Response) => {
+      const { number:id } = req.params;
+
+      if ( !id ){
+        res.status(400).send("car not found")
+      }
+
+      cars = cars.filter(car => car.id == id)
+
+      res.status(200).send(cars)
+  })
 
   /// @TODO Add an endpoint to post a new car to our list
   // it should require id, type, model, and cost
