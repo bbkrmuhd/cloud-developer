@@ -1,3 +1,5 @@
+import axios from "axios";
+import { response } from "express";
 import fs from "fs";
 import { url } from "inspector";
 import Jimp = require("jimp");
@@ -37,4 +39,21 @@ export async function deleteLocalFiles(files: Array<string>) {
   for (let file of files) {
     fs.unlinkSync(file);
   }
+}
+
+export async function validateImage(url: string) {
+
+  const validImage = await axios.get(url).then(
+    (resp) => {
+      if (resp.status !== 200){
+        throw new Error("Image not found")
+      }
+      if (!resp.headers["content-type"].includes("image")) {
+        throw new Error("Invalid image type")
+      } 
+    }
+  ).catch((err) => {
+    return err["message"]
+  })
+  return validImage
 }

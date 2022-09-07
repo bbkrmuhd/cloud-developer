@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import {filterImageFromURL, deleteLocalFiles, validatedImage} from './util/util';
-import axios from 'axios';
+import {filterImageFromURL, deleteLocalFiles, validateImage} from './util/util';
+import { url } from 'inspector';
 
 (async () => {
 
@@ -40,20 +40,25 @@ import axios from 'axios';
 
   app.get("/filteredimage/",async (req: Request, res: Response) => {
     const { image_url }  = req.query;
-    const directory =  './util/tmp'
+    let filtered_url;
 
     if ( !image_url ) {
       return res.status(400)
                 .send(`Sorry image url query is required`);
     }
-    
-    
 
-    let filtered_url = await filterImageFromURL(image_url)
-    res.status(200).sendFile(filtered_url)
-    // await deleteLocalFiles([filtered_url])
+    validateImage(image_url)
+
+    try {
+     filtered_url = await filterImageFromURL(image_url)
+       res.status(200).sendFile(filtered_url)
+    } catch (error) {
+       res.status(400).send(error)
+    }
+    return await deleteLocalFiles([filtered_url])
   })
 
+    // Delete image files store on the server
   // Start the Server
   app.listen( port, () => {
       console.log( `server running http://localhost:${ port }` );
